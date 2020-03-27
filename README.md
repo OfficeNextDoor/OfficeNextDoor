@@ -1,6 +1,3 @@
-# OfficeNextDoor-frontend
-
-
 # office_next_door
 
 OfficeNextDoor for codevscovid19
