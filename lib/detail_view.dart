@@ -1,5 +1,5 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'image_carousel.dart';
 
 class DetailView extends StatefulWidget {
   @override
@@ -31,7 +31,7 @@ class DetailViewState extends State<DetailView> {
         ),
         body: Column(
           children: <Widget>[
-            ImageCarousel(),
+            CarouselWithIndicator(),
             DetailList(),
             // StickyFooterButton()
           ],
@@ -87,31 +87,5 @@ class DetailList extends StatelessWidget {
                 ),
               ],
             )));
-  }
-}
-
-class ImageCarousel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return CarouselSlider(
-      height: 100.0,
-      items: [1, 2, 3, 4, 5].map((i) {
-        return Builder(
-          builder: (BuildContext context) {
-            return Container(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(color: Colors.amber),
-                child: Text(
-                  'Image Number: $i',
-                  style: TextStyle(fontSize: 16.0),
-                ));
-          },
-        );
-      }).toList(),
-    );
   }
 }
