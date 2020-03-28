@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:office_next_door/sign_in/authentication.dart';
 import 'package:office_next_door/sign_in/login_signup_view.dart';
+
 import 'offer_workplace.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:convert';
-
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -17,16 +17,16 @@ enum AuthStatus {
 
 class MapView extends StatefulWidget {
   MapView({this.auth});
+
   final BaseAuth auth;
 
   @override
   State<MapView> createState() => MapViewState();
-
 }
 
 class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
-  GlobalKey<ScaffoldState > _scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
 
@@ -44,7 +44,7 @@ class MapViewState extends State<MapView> {
           _userId = user?.uid;
         }
         _authStatus =
-        user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
     });
   }
@@ -67,128 +67,109 @@ class MapViewState extends State<MapView> {
       _userId = "";
     });
     Navigator.pop(context);
-    _scaffoldKey.currentState.showSnackBar(
-      SnackBar(content: Text('Successfully logged out.'))
-    );
+    _scaffoldKey.currentState
+        .showSnackBar(SnackBar(content: Text('Successfully logged out.')));
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      key: _scaffoldKey,
-      drawer : buildDrawer(context),
-      body: Stack(
-        children: <Widget> [
+        key: _scaffoldKey,
+        drawer: buildDrawer(context),
+        body: Stack(children: <Widget>[
           Center(
-            child : GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _kZurich,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              }
-            )
-          ),
+              child: GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: _kZurich,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  })),
           Positioned(
-            left: 10,
-            top: 30,
-            child: IconButton(
-              icon: Icon(Icons.menu, color: Colors.white),
-              onPressed: () => _scaffoldKey.currentState.openDrawer(),
-            )
-          ),
+              left: 10,
+              top: 30,
+              child: IconButton(
+                icon: Icon(Icons.menu, color: Colors.white),
+                onPressed: () => _scaffoldKey.currentState.openDrawer(),
+              )),
           Positioned(
             right: 10,
             top: 30,
-            child: IconButton(
-              icon: Icon(Icons.filter_list, color: Colors.white)
-            ),
+            child:
+                IconButton(icon: Icon(Icons.filter_list, color: Colors.white)),
           ),
           Positioned(
-            top: 30,
-            left: 60,
-            right: 60,
-            child: buildSearchField(context)
-          ),
+              top: 30, left: 60, right: 60, child: buildSearchField(context)),
           _buildDraggableBottomSheet(context)
-        ]
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Navigate to the second screen using a named route.
-          Navigator.pushNamed(context, '/detail');
-        },
-        label: Text('DetailPage!'),
-        icon: Icon(Icons.directions_boat),
-      ));
+        ]),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            // Navigate to the second screen using a named route.
+            Navigator.pushNamed(context, '/detail');
+          },
+          label: Text('DetailPage!'),
+          icon: Icon(Icons.directions_boat),
+        ));
   }
 
   Drawer buildDrawer(BuildContext context) {
     return new Drawer(
-        child: ListView(
+      child: ListView(
           // Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-                child: Text('Insert Logo Here'),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
+              child: Text('Insert Logo Here'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
-              buildLoginLogoutTile(context),
+            ),
+            buildLoginLogoutTile(context),
             ListTile(
               title: Text('Offer a workplace'),
               onTap: () {
-                Navigator.push(
-                    context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => OfferView()));
               },
             ),
-            ]
-          ),
-        );
+          ]),
+    );
   }
 
   ListTile buildLoginLogoutTile(BuildContext context) {
     if (_authStatus == AuthStatus.LOGGED_IN) {
-      return ListTile(
-        title: Text('Logout'),
-        onTap: logoutCallback
-      );
+      return ListTile(title: Text('Logout'), onTap: logoutCallback);
     } else {
       return ListTile(
-        title: Text('Login'),
-        onTap: () {
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginSignupView(
-              auth: widget.auth,
-              loginCallback: loginCallback,
-              )
-            )
-          );
-        }
-      );
+          title: Text('Login'),
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoginSignupView(
+                          auth: widget.auth,
+                          loginCallback: loginCallback,
+                        )));
+          });
     }
   }
 
   TextField buildSearchField(BuildContext context) {
     return TextField(
-      autofocus: false,
-      decoration : InputDecoration(
-        suffixIcon: Icon(Icons.search),
-        filled: true,
-        fillColor: Colors.white,
-        hintText : "Search...",
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25),
-        ),
-      )
-    );
+        autofocus: false,
+        decoration: InputDecoration(
+          suffixIcon: Icon(Icons.search),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: "Search...",
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ));
   }
 
   Widget _buildList(BuildContext context, ScrollController scrollController,
@@ -196,7 +177,7 @@ class MapViewState extends State<MapView> {
     return Container(
       color: Colors.white,
       child: ListView.builder(
-         padding: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
         controller: scrollController,
         itemCount: snapshot.length,
         itemBuilder: (BuildContext context, int index) {
@@ -289,7 +270,7 @@ class CustomListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.pushNamed(context, '/detail');
       },
       child: Card(
@@ -372,12 +353,14 @@ class WorkplaceDescription extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Row(
-                children: <Widget>[Icon(Icons.star, size: 18),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 4.0)),
-                Text(
-                  '$averageRating ($numberOfRatings)',
-                  style: const TextStyle(fontSize: 12.0),
-                )],
+                children: <Widget>[
+                  Icon(Icons.star, size: 18),
+                  const Padding(padding: EdgeInsets.symmetric(horizontal: 4.0)),
+                  Text(
+                    '$averageRating ($numberOfRatings)',
+                    style: const TextStyle(fontSize: 12.0),
+                  )
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -438,5 +421,8 @@ Widget _getIcon(feature) {
       break;
   }
 
-  return Icon(icon, size: 18,);
+  return Icon(
+    icon,
+    size: 18,
+  );
 }
