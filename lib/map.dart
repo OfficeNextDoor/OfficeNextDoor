@@ -52,7 +52,8 @@ class MapViewState extends State<MapView> {
             left: 60,
             right: 60,
             child: buildSearchField(context)
-          )
+          ),
+          buildDraggableBottomSheet(context)
         ]
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -105,6 +106,30 @@ class MapViewState extends State<MapView> {
         ),
       )
     );
+  }
+
+  DraggableScrollableSheet buildDraggableBottomSheet(BuildContext context) {
+    return DraggableScrollableSheet(
+        initialChildSize: 0.2,
+        minChildSize: 0.2,
+        maxChildSize: 0.8,
+        builder: (BuildContext context, ScrollController scrollController) {
+          return Container(
+            decoration: new BoxDecoration(
+                color: Colors.white,
+                borderRadius: new BorderRadius.only(
+                  topLeft: const Radius.circular(20.0),
+                  topRight: const Radius.circular(20.0),
+                )),
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: 25,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(title: Text('Item $index'));
+              },
+            ),
+          );
+        });
   }
 }
 
