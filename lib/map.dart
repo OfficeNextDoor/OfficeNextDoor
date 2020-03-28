@@ -62,14 +62,8 @@ class MapViewState extends State<MapView> {
       _userId = "";
     });
     Navigator.pop(context);
-  }
-
-  Widget buildWaitingScreen() {
-    return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        child: CircularProgressIndicator(),
-      ),
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(content: Text('Successfully logged out.'))
     );
   }
 
@@ -130,25 +124,38 @@ class MapViewState extends State<MapView> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text('Insert Logo Here'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
+                child: Text('Insert Logo Here'),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Login'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginSignupView(
-                    auth: widget.auth,
-                    loginCallback: loginCallback,
-                  )
-                  )
-                );
-              },
-            ),
-          ]));
+              buildLoginLogoutTile(context)
+            ]
+          ),
+        );
+  }
+
+  ListTile buildLoginLogoutTile(BuildContext context) {
+    if (_authStatus == AuthStatus.LOGGED_IN) {
+      return ListTile(
+        title: Text('Logout'),
+        onTap: logoutCallback
+      );
+    } else {
+      return ListTile(
+        title: Text('Login'),
+        onTap: () {
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginSignupView(
+              auth: widget.auth,
+              loginCallback: loginCallback,
+              )
+            )
+          );
+        }
+      );
+    }
   }
 
   TextField buildSearchField(BuildContext context) {
