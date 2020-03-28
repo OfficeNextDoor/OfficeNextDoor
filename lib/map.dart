@@ -5,6 +5,9 @@ import 'package:office_next_door/sign_in/authentication.dart';
 import 'package:office_next_door/sign_in/login_signup_view.dart';
 import 'offer_workplace.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -64,14 +67,8 @@ class MapViewState extends State<MapView> {
       _userId = "";
     });
     Navigator.pop(context);
-  }
-
-  Widget buildWaitingScreen() {
-    return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        child: CircularProgressIndicator(),
-      ),
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(content: Text('Successfully logged out.'))
     );
   }
 
@@ -112,7 +109,7 @@ class MapViewState extends State<MapView> {
             right: 60,
             child: buildSearchField(context)
           ),
-          buildDraggableBottomSheet(context)
+          _buildDraggableBottomSheet(context)
         ]
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -132,24 +129,12 @@ class MapViewState extends State<MapView> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text('Insert Logo Here'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
+                child: Text('Insert Logo Here'),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Login'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginSignupView(
-                    auth: widget.auth,
-                    loginCallback: loginCallback,
-                  )
-                  )
-                );
-              },
-            ),
+              buildLoginLogoutTile(context),
             ListTile(
               title: Text('Offer a workplace'),
               onTap: () {
@@ -158,7 +143,32 @@ class MapViewState extends State<MapView> {
                     MaterialPageRoute(builder: (context) => OfferView()));
               },
             ),
-          ]));
+            ]
+          ),
+        );
+  }
+
+  ListTile buildLoginLogoutTile(BuildContext context) {
+    if (_authStatus == AuthStatus.LOGGED_IN) {
+      return ListTile(
+        title: Text('Logout'),
+        onTap: logoutCallback
+      );
+    } else {
+      return ListTile(
+        title: Text('Login'),
+        onTap: () {
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginSignupView(
+              auth: widget.auth,
+              loginCallback: loginCallback,
+              )
+            )
+          );
+        }
+      );
+    }
   }
 
   TextField buildSearchField(BuildContext context) {
@@ -181,28 +191,252 @@ class MapViewState extends State<MapView> {
     );
   }
 
-  DraggableScrollableSheet buildDraggableBottomSheet(BuildContext context) {
-    return DraggableScrollableSheet(
-        initialChildSize: 0.2,
-        minChildSize: 0.2,
-        maxChildSize: 0.8,
-        builder: (BuildContext context, ScrollController scrollController) {
-          return Container(
-            decoration: new BoxDecoration(
-                color: Colors.white,
-                borderRadius: new BorderRadius.only(
-                  topLeft: const Radius.circular(20.0),
-                  topRight: const Radius.circular(20.0),
-                )),
-            child: ListView.builder(
-              controller: scrollController,
-              itemCount: 25,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(title: Text('Item $index'));
-              },
-            ),
+  Widget _buildList(BuildContext context, ScrollController scrollController,
+      List<DocumentSnapshot> snapshot) {
+    return Container(
+      color: Colors.white,
+      child: ListView.builder(
+         padding: EdgeInsets.zero,
+        controller: scrollController,
+        itemCount: snapshot.length,
+        itemBuilder: (BuildContext context, int index) {
+          return CustomListItem(
+            workplaceRecord: WorkplaceRecord.fromSnapshot(snapshot[index]),
           );
-        });
+        },
+      ),
+    );
+  }
+
+  DraggableScrollableSheet _buildDraggableBottomSheet(BuildContext context) {
+    return DraggableScrollableSheet(
+        initialChildSize: 0.3,
+        minChildSize: 0.3,
+        maxChildSize: 0.6,
+        builder: _buildBody);
+  }
+
+  Widget _buildBody(BuildContext context, ScrollController scrollController) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('workplace').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+
+        return _buildList(context, scrollController, snapshot.data.documents);
+      },
+    );
   }
 }
 
+class WorkplaceRecord {
+  final String title;
+  final String description;
+  final String thumbnail;
+  final String owner;
+  final Timestamp availableFrom;
+  final Timestamp availableTo;
+  final String address;
+  final double averageRating;
+  final int numberOfRatings;
+  final GeoPoint geopoint;
+  final List images;
+  final List features;
+  final List bookings;
+  final DocumentReference reference;
+
+  WorkplaceRecord.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['title'] != null),
+        assert(map['description'] != null),
+        assert(map['thumbnail'] != null),
+        assert(map['owner'] != null),
+        assert(map['availableFrom'] != null),
+        assert(map['availableTo'] != null),
+        assert(map['address'] != null),
+        assert(map['averageRating'] != null),
+        assert(map['numberOfRatings'] != null),
+        assert(map['geopoint'] != null),
+        assert(map['images'] != null),
+        assert(map['features'] != null),
+        assert(map['bookings'] != null),
+        title = map['title'],
+        description = map['description'],
+        thumbnail = map['thumbnail'],
+        owner = map['owner'],
+        availableFrom = map['availableFrom'],
+        availableTo = map['availableTo'],
+        address = map['address'],
+        averageRating = map['averageRating'],
+        numberOfRatings = map['numberOfRatings'],
+        geopoint = map['geopoint'],
+        images = map['images'],
+        features = map['features'],
+        bookings = map['bookings'];
+
+  WorkplaceRecord.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
+
+  @override
+  String toString() => "Record<$title:$averageRating>";
+}
+
+class CustomListItem extends StatelessWidget {
+  const CustomListItem({
+    this.workplaceRecord,
+  });
+
+  final WorkplaceRecord workplaceRecord;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, '/detail');
+      },
+      child: Card(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
+                  ),
+                  child: imageFromBase64(workplaceRecord.thumbnail)),
+            ),
+            Expanded(
+              flex: 3,
+              child: WorkplaceDescription(
+                title: workplaceRecord.title,
+                description: workplaceRecord.description,
+                averageRating: workplaceRecord.averageRating,
+                numberOfRatings: workplaceRecord.numberOfRatings,
+                features: workplaceRecord.features,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+imageFromBase64(String thumbnail) {
+  return Image.memory(
+    base64Decode(thumbnail),
+    fit: BoxFit.cover,
+    height: 100,
+    cacheHeight: 100,
+    cacheWidth: 100,
+  );
+}
+
+class WorkplaceDescription extends StatelessWidget {
+  const WorkplaceDescription({
+    Key key,
+    this.title,
+    this.description,
+    this.averageRating,
+    this.numberOfRatings,
+    this.features,
+  }) : super(key: key);
+
+  final String title;
+  final String description;
+  final double averageRating;
+  final int numberOfRatings;
+  final List features;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14.0,
+            ),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 2.0)),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 12.0),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Row(
+                children: <Widget>[Icon(Icons.star, size: 18),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 4.0)),
+                Text(
+                  '$averageRating ($numberOfRatings)',
+                  style: const TextStyle(fontSize: 12.0),
+                )],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: features.map((feature) {
+                  return _getIcon(feature);
+                }).toList(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+Widget _getIcon(feature) {
+  IconData icon;
+  switch (feature) {
+    case "toilet":
+      {
+        icon = Icons.wc;
+      }
+      break;
+    case "screen":
+      {
+        icon = Icons.tv;
+      }
+      break;
+    case "fresh_air":
+      {
+        icon = Icons.local_florist;
+      }
+      break;
+    case "large_desk":
+      {
+        icon = Icons.desktop_windows;
+      }
+      break;
+    case "coffee":
+      {
+        icon = Icons.local_drink;
+      }
+      break;
+    case "water":
+      {
+        icon = Icons.pin_drop;
+      }
+      break;
+    case "power_outlet":
+      {
+        icon = Icons.power;
+      }
+      break;
+    default:
+      {
+        return Text("?");
+      }
+      break;
+  }
+
+  return Icon(icon, size: 18,);
+}

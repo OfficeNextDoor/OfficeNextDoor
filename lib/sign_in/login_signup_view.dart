@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:office_next_door/common/data_access.dart';
+import 'package:office_next_door/model/user.dart';
 import 'authentication.dart';
 
 class LoginSignupView extends StatefulWidget {
@@ -13,6 +15,7 @@ class LoginSignupView extends StatefulWidget {
 
 class LoginSignupViewState extends State<LoginSignupView> {
   final _formKey = new GlobalKey<FormState>();
+  final DataAccess _dataAccess = new FirebaseDataAccess();
 
   String _firstName;
   String _lastName;
@@ -41,13 +44,19 @@ class LoginSignupViewState extends State<LoginSignupView> {
     });
     if (validateAndSave()) {
       String userId = "";
+      User user;
       try {
         if (_isLoginForm) {
           userId = await widget.auth.signIn(_email, _password);
           print('Signed in: $userId');
+          user = await _dataAccess.getUser(userId);
+          print('User: $user');
         } else {
           userId = await widget.auth.signUp(_email, _password);
           print('Signed up user: $userId');
+          user = await _dataAccess.createUser(
+              userId, _firstName, _lastName, _email);
+          print('User: $user');
         }
         setState(() {
           _isLoading = false;
@@ -136,8 +145,8 @@ class LoginSignupViewState extends State<LoginSignupView> {
     }
 
     return new Container(
-    padding: EdgeInsets.all(16.0),
-    child: new Form(
+        padding: EdgeInsets.all(16.0),
+        child: new Form(
           key: _formKey,
           child: new ListView(
             shrinkWrap: true,
@@ -176,7 +185,9 @@ class LoginSignupViewState extends State<LoginSignupView> {
               Icons.person,
               color: Colors.grey,
             )),
-        validator: (value) => !_isLoginForm && value.isEmpty ? 'First Name can\'t be empty' : null,
+        validator: (value) => !_isLoginForm && value.isEmpty
+            ? 'First Name can\'t be empty'
+            : null,
         onSaved: (value) => _firstName = value.trim(),
       ),
     );
@@ -195,7 +206,8 @@ class LoginSignupViewState extends State<LoginSignupView> {
               Icons.person,
               color: Colors.grey,
             )),
-        validator: (value) => !_isLoginForm && value.isEmpty ? 'Last Name can\'t be empty' : null,
+        validator: (value) =>
+            !_isLoginForm && value.isEmpty ? 'Last Name can\'t be empty' : null,
         onSaved: (value) => _lastName = value.trim(),
       ),
     );
@@ -242,7 +254,9 @@ class LoginSignupViewState extends State<LoginSignupView> {
   Widget showSecondaryButton() {
     return new FlatButton(
         child: new Text(
-            _isLoginForm ? 'Create an account' : 'Already have an account? Sign in',
+            _isLoginForm
+                ? 'Create an account'
+                : 'Already have an account? Sign in',
             style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
         onPressed: toggleFormMode);
   }
