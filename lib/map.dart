@@ -1,20 +1,77 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:office_next_door/sign_in/authentication.dart';
+import 'package:office_next_door/sign_in/login_signup_view.dart';
+
+enum AuthStatus {
+  NOT_DETERMINED,
+  NOT_LOGGED_IN,
+  LOGGED_IN,
+}
 
 class MapView extends StatefulWidget {
+  MapView({this.auth});
+  final BaseAuth auth;
+
   @override
   State<MapView> createState() => MapViewState();
+
 }
 
 class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
   GlobalKey<ScaffoldState > _scaffoldKey = GlobalKey<ScaffoldState>();
+  AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
+  String _userId = "";
 
   static final CameraPosition _kZurich = CameraPosition(
     target: LatLng(47.36667, 8.54),
     zoom: 14.4746,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        if (user != null) {
+          _userId = user?.uid;
+        }
+        _authStatus =
+        user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+      });
+    });
+  }
+
+  void loginCallback() {
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        _userId = user.uid.toString();
+      });
+    });
+    setState(() {
+      _authStatus = AuthStatus.LOGGED_IN;
+    });
+    Navigator.pop(context);
+  }
+
+  void logoutCallback() {
+    setState(() {
+      _authStatus = AuthStatus.NOT_LOGGED_IN;
+      _userId = "";
+    });
+    Navigator.pop(context);
+  }
+
+  Widget buildWaitingScreen() {
+    return Scaffold(
+      body: Container(
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +136,16 @@ class MapViewState extends State<MapView> {
               ),
             ),
             ListTile(
-              title: Text('Offer a workplace'),
+              title: Text('Login'),
               onTap: () {
-                // Do nothing for now
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginSignupView(
+                    auth: widget.auth,
+                    loginCallback: loginCallback,
+                  )
+                  )
+                );
               },
             ),
           ]));
