@@ -7,20 +7,57 @@ class DetailView extends StatefulWidget {
 }
 
 class DetailViewState extends State<DetailView> {
+
+  DateTime selectedDate = DateTime.now();
+
+  _selectDate() async {
+    debugPrint('it works');
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("simply delete App Bar if you want"),
-      ),
-      body: Column(
-        children: <Widget>[
-          ImageCarousel(),
-          DetailList(),
-          // StickyFooterButton()
-        ],
-      ),
-    );
+        appBar: AppBar(
+          title: Text("simply delete App Bar if you want"),
+        ),
+        body: Column(
+          children: <Widget>[
+            ImageCarousel(),
+            DetailList(),
+            // StickyFooterButton()
+          ],
+        ),
+        bottomNavigationBar: Footer(this._selectDate));
+  }
+}
+
+class Footer extends StatelessWidget {
+
+  Footer(this.buttonAction);
+
+  final Function buttonAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Colors.red,
+        height: 100.0,
+        child: ButtonBar(alignment: MainAxisAlignment.end, children: [
+          RaisedButton(
+            color: Colors.blue,
+            onPressed: buttonAction,
+            child: Text('Book NOW!', style: TextStyle(fontSize: 20)),
+          )
+        ]));
   }
 }
 
@@ -62,7 +99,10 @@ class ImageCarousel extends StatelessWidget {
         return Builder(
           builder: (BuildContext context) {
             return Container(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
                 margin: EdgeInsets.symmetric(horizontal: 5.0),
                 decoration: BoxDecoration(color: Colors.amber),
                 child: Text(
