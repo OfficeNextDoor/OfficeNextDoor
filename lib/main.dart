@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:office_next_door/firebase_example.dart';
+import 'package:office_next_door/detail_view.dart';
 import 'map.dart';
 
 void main() {
@@ -12,7 +12,7 @@ void main() {
       // When navigating to the "/" route, build the FirstScreen widget.
       '/': (context) => MapView(),
       // When navigating to the "/second" route, build the SecondScreen widget.
-      '/second': (context) => FirebaseExample(),
+      '/second': (context) => DetailView(),
     },
   ));
 }
