@@ -41,7 +41,6 @@ class DetailList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
         child: SizedBox(
-            height: 200,
             child: ListView.separated(
               itemCount: items.length,
               itemBuilder: (context, index) {

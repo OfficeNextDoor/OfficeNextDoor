@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'image_carousel.dart';
 import 'detail_list.dart';
+import 'footer.dart';
 
 class DetailView extends StatefulWidget {
   @override
@@ -11,8 +12,10 @@ class DetailViewState extends State<DetailView> {
 
   DateTime selectedDate = DateTime.now();
 
+  //TODO load state from Firebase
+  final String locationName = 'Location Name';
+
   _selectDate() async {
-    debugPrint('it works');
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
@@ -28,36 +31,14 @@ class DetailViewState extends State<DetailView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("simply delete App Bar if you want"),
+          title: Text(locationName),
         ),
         body: Column(
           children: <Widget>[
             CarouselWithIndicator(),
             DetailList(),
-            // StickyFooterButton()
           ],
         ),
         bottomNavigationBar: Footer(this._selectDate));
-  }
-}
-
-class Footer extends StatelessWidget {
-
-  Footer(this.buttonAction);
-
-  final Function buttonAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.red,
-        height: 100.0,
-        child: ButtonBar(alignment: MainAxisAlignment.end, children: [
-          RaisedButton(
-            color: Colors.blue,
-            onPressed: buttonAction,
-            child: Text('Book NOW!', style: TextStyle(fontSize: 20)),
-          )
-        ]));
   }
 }
