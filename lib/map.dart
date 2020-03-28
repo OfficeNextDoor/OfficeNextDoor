@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:office_next_door/sign_in/authentication.dart';
 import 'package:office_next_door/sign_in/login_signup_view.dart';
+import 'offer_workplace.dart';
+
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -116,7 +118,7 @@ class MapViewState extends State<MapView> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Navigate to the second screen using a named route.
-          Navigator.pushNamed(context, '/second');
+          Navigator.pushNamed(context, '/detail');
         },
         label: Text('DetailPage!'),
         icon: Icon(Icons.directions_boat),
@@ -146,6 +148,14 @@ class MapViewState extends State<MapView> {
                   )
                   )
                 );
+              },
+            ),
+            ListTile(
+              title: Text('Offer a workplace'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => OfferView()));
               },
             ),
           ]));
