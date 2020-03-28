@@ -9,7 +9,7 @@ class MapView extends StatefulWidget {
 
 class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
-  GlobalKey<ScaffoldState >scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState > _scaffoldKey = GlobalKey<ScaffoldState>();
 
   static final CameraPosition _kZurich = CameraPosition(
     target: LatLng(47.36667, 8.54),
@@ -19,13 +19,13 @@ class MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       drawer : buildDrawer(context),
       body: Stack(
         children: <Widget> [
-          new Center(
+          Center(
             child : GoogleMap(
-              mapType: MapType.hybrid,
+              mapType: MapType.normal,
               initialCameraPosition: _kZurich,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -37,7 +37,7 @@ class MapViewState extends State<MapView> {
             top: 30,
             child: IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
-              onPressed: () => scaffoldKey.currentState.openDrawer(),
+              onPressed: () => _scaffoldKey.currentState.openDrawer(),
             )
           ),
           Positioned(
@@ -91,17 +91,17 @@ class MapViewState extends State<MapView> {
     return TextField(
       autofocus: false,
       decoration : InputDecoration(
+        suffixIcon: Icon(Icons.search),
         filled: true,
         fillColor: Colors.white,
-        focusColor: Colors.white,
         hintText : "Search...",
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
         ),
       )
     );
