@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapView extends StatefulWidget {
   @override
@@ -9,7 +12,7 @@ class MapView extends StatefulWidget {
 
 class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
-  GlobalKey<ScaffoldState > _scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   static final CameraPosition _kZurich = CameraPosition(
     target: LatLng(47.36667, 8.54),
@@ -19,117 +22,330 @@ class MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      key: _scaffoldKey,
-      drawer : buildDrawer(context),
-      body: Stack(
-        children: <Widget> [
+        key: _scaffoldKey,
+        drawer: buildDrawer(context),
+        body: Stack(children: <Widget>[
           Center(
-            child : GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _kZurich,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              }
-            )
-          ),
+              child: GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: _kZurich,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  })),
           Positioned(
-            left: 10,
-            top: 30,
-            child: IconButton(
-              icon: Icon(Icons.menu, color: Colors.white),
-              onPressed: () => _scaffoldKey.currentState.openDrawer(),
-            )
-          ),
+              left: 10,
+              top: 30,
+              child: IconButton(
+                icon: Icon(Icons.menu, color: Colors.white),
+                onPressed: () => _scaffoldKey.currentState.openDrawer(),
+              )),
           Positioned(
             right: 10,
             top: 30,
-            child: IconButton(
-              icon: Icon(Icons.filter_list, color: Colors.white)
-            ),
+            child:
+                IconButton(icon: Icon(Icons.filter_list, color: Colors.white)),
           ),
           Positioned(
-            top: 30,
-            left: 60,
-            right: 60,
-            child: buildSearchField(context)
-          ),
-          buildDraggableBottomSheet(context)
-        ]
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Navigate to the second screen using a named route.
-          Navigator.pushNamed(context, '/second');
-        },
-        label: Text('DetailPage!'),
-        icon: Icon(Icons.directions_boat),
-      ));
+              top: 30, left: 60, right: 60, child: buildSearchField(context)),
+          _buildDraggableBottomSheet(context)
+        ]),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            // Navigate to the second screen using a named route.
+            Navigator.pushNamed(context, '/second');
+          },
+          label: Text('DetailPage!'),
+          icon: Icon(Icons.directions_boat),
+        ));
   }
 
   Drawer buildDrawer(BuildContext context) {
     return new Drawer(
         child: ListView(
-          // Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Insert Logo Here'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
+            // Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+          DrawerHeader(
+            child: Text('Insert Logo Here'),
+            decoration: BoxDecoration(
+              color: Colors.blue,
             ),
-            ListTile(
-              title: Text('Offer a workplace'),
-              onTap: () {
-                // Do nothing for now
-                Navigator.pop(context);
-              },
-            ),
-          ]));
+          ),
+          ListTile(
+            title: Text('Offer a workplace'),
+            onTap: () {
+              // Do nothing for now
+              Navigator.pop(context);
+            },
+          ),
+        ]));
   }
 
   TextField buildSearchField(BuildContext context) {
     return TextField(
-      autofocus: false,
-      decoration : InputDecoration(
-        suffixIcon: Icon(Icons.search),
-        filled: true,
-        fillColor: Colors.white,
-        hintText : "Search...",
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25),
-        ),
-      )
+        autofocus: false,
+        decoration: InputDecoration(
+          suffixIcon: Icon(Icons.search),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: "Search...",
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ));
+  }
+
+  Widget _buildList(BuildContext context, ScrollController scrollController,
+      List<DocumentSnapshot> snapshot) {
+    return Container(
+      color: Colors.white,
+      child: ListView.builder(
+         padding: EdgeInsets.zero,
+        controller: scrollController,
+        itemCount: snapshot.length,
+        itemBuilder: (BuildContext context, int index) {
+          return CustomListItem(
+            workplaceRecord: WorkplaceRecord.fromSnapshot(snapshot[index]),
+          );
+        },
+      ),
     );
   }
 
-  DraggableScrollableSheet buildDraggableBottomSheet(BuildContext context) {
+  DraggableScrollableSheet _buildDraggableBottomSheet(BuildContext context) {
     return DraggableScrollableSheet(
-        initialChildSize: 0.2,
-        minChildSize: 0.2,
-        maxChildSize: 0.8,
-        builder: (BuildContext context, ScrollController scrollController) {
-          return Container(
-            decoration: new BoxDecoration(
-                color: Colors.white,
-                borderRadius: new BorderRadius.only(
-                  topLeft: const Radius.circular(20.0),
-                  topRight: const Radius.circular(20.0),
-                )),
-            child: ListView.builder(
-              controller: scrollController,
-              itemCount: 25,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(title: Text('Item $index'));
-              },
-            ),
-          );
-        });
+        initialChildSize: 0.3,
+        minChildSize: 0.3,
+        maxChildSize: 0.6,
+        builder: _buildBody);
+  }
+
+  Widget _buildBody(BuildContext context, ScrollController scrollController) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('workplace').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+
+        return _buildList(context, scrollController, snapshot.data.documents);
+      },
+    );
   }
 }
 
+class WorkplaceRecord {
+  final String title;
+  final String description;
+  final String thumbnail;
+  final String owner;
+  final Timestamp availableFrom;
+  final Timestamp availableTo;
+  final String address;
+  final double averageRating;
+  final int numberOfRatings;
+  final GeoPoint geopoint;
+  final List images;
+  final List features;
+  final List bookings;
+  final DocumentReference reference;
+
+  WorkplaceRecord.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['title'] != null),
+        assert(map['description'] != null),
+        assert(map['thumbnail'] != null),
+        assert(map['owner'] != null),
+        assert(map['availableFrom'] != null),
+        assert(map['availableTo'] != null),
+        assert(map['address'] != null),
+        assert(map['averageRating'] != null),
+        assert(map['numberOfRatings'] != null),
+        assert(map['geopoint'] != null),
+        assert(map['images'] != null),
+        assert(map['features'] != null),
+        assert(map['bookings'] != null),
+        title = map['title'],
+        description = map['description'],
+        thumbnail = map['thumbnail'],
+        owner = map['owner'],
+        availableFrom = map['availableFrom'],
+        availableTo = map['availableTo'],
+        address = map['address'],
+        averageRating = map['averageRating'],
+        numberOfRatings = map['numberOfRatings'],
+        geopoint = map['geopoint'],
+        images = map['images'],
+        features = map['features'],
+        bookings = map['bookings'];
+
+  WorkplaceRecord.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
+
+  @override
+  String toString() => "Record<$title:$averageRating>";
+}
+
+class CustomListItem extends StatelessWidget {
+  const CustomListItem({
+    this.workplaceRecord,
+  });
+
+  final WorkplaceRecord workplaceRecord;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, '/second');
+      },
+      child: Card(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
+                  ),
+                  child: imageFromBase64(workplaceRecord.thumbnail)),
+            ),
+            Expanded(
+              flex: 3,
+              child: WorkplaceDescription(
+                title: workplaceRecord.title,
+                description: workplaceRecord.description,
+                averageRating: workplaceRecord.averageRating,
+                numberOfRatings: workplaceRecord.numberOfRatings,
+                features: workplaceRecord.features,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+imageFromBase64(String thumbnail) {
+  return Image.memory(
+    base64Decode(thumbnail),
+    fit: BoxFit.cover,
+    height: 100,
+    cacheHeight: 100,
+    cacheWidth: 100,
+  );
+}
+
+class WorkplaceDescription extends StatelessWidget {
+  const WorkplaceDescription({
+    Key key,
+    this.title,
+    this.description,
+    this.averageRating,
+    this.numberOfRatings,
+    this.features,
+  }) : super(key: key);
+
+  final String title;
+  final String description;
+  final double averageRating;
+  final int numberOfRatings;
+  final List features;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14.0,
+            ),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 2.0)),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 12.0),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Row(
+                children: <Widget>[Icon(Icons.star, size: 18),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 4.0)),
+                Text(
+                  '$averageRating ($numberOfRatings)',
+                  style: const TextStyle(fontSize: 12.0),
+                )],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: features.map((feature) {
+                  return _getIcon(feature);
+                }).toList(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+Widget _getIcon(feature) {
+  IconData icon;
+  switch (feature) {
+    case "toilet":
+      {
+        icon = Icons.wc;
+      }
+      break;
+    case "screen":
+      {
+        icon = Icons.tv;
+      }
+      break;
+    case "fresh_air":
+      {
+        icon = Icons.local_florist;
+      }
+      break;
+    case "large_desk":
+      {
+        icon = Icons.desktop_windows;
+      }
+      break;
+    case "coffee":
+      {
+        icon = Icons.local_drink;
+      }
+      break;
+    case "water":
+      {
+        icon = Icons.pin_drop;
+      }
+      break;
+    case "power_outlet":
+      {
+        icon = Icons.power;
+      }
+      break;
+    default:
+      {
+        return Text("?");
+      }
+      break;
+  }
+
+  return Icon(icon, size: 18,);
+}
