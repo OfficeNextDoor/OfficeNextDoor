@@ -1,17 +1,6 @@
-import'dart:async';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Google Maps Demo',
-      home: MapSample(),
-    );
-  }
-}
 
 class MapSample extends StatefulWidget {
   @override
@@ -35,19 +24,29 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
-      ),
-    );
+        appBar: AppBar(
+          title: Text('Overview'),
+        ),
+        body: GoogleMap(
+          mapType: MapType.hybrid,
+          initialCameraPosition: _kGooglePlex,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+        ),
+//      floatingActionButton: FloatingActionButton.extended(
+//        onPressed: _goToTheLake,
+//        label: Text('To the lake!'),
+//        icon: Icon(Icons.directions_boat),
+//      ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            // Navigate to the second screen using a named route.
+            Navigator.pushNamed(context, '/second');
+          },
+          label: Text('DetailPage!'),
+          icon: Icon(Icons.directions_boat),
+        ));
   }
 
   Future<void> _goToTheLake() async {
