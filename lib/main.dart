@@ -10,7 +10,7 @@ void main() {
     initialRoute: '/',
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
-      '/': (context) => MapSample(),
+      '/': (context) => MapView(),
       // When navigating to the "/second" route, build the SecondScreen widget.
       '/second': (context) => DetailPage(),
     },

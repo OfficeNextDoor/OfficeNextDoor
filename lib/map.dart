@@ -2,24 +2,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MapSample extends StatefulWidget {
+class MapView extends StatefulWidget {
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MapView> createState() => MapViewState();
 }
 
-class MapSampleState extends State<MapSample> {
+class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+  static final CameraPosition _kZurich = CameraPosition(
+    target: LatLng(47.36667, 8.54),
     zoom: 14.4746,
   );
-
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +23,11 @@ class MapSampleState extends State<MapSample> {
         ),
         body: GoogleMap(
           mapType: MapType.hybrid,
-          initialCameraPosition: _kGooglePlex,
+          initialCameraPosition: _kZurich,
           onMapCreated: (GoogleMapController controller) {
             _controller.complete(controller);
           },
         ),
-//      floatingActionButton: FloatingActionButton.extended(
-//        onPressed: _goToTheLake,
-//        label: Text('To the lake!'),
-//        icon: Icon(Icons.directions_boat),
-//      ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             // Navigate to the second screen using a named route.
@@ -47,10 +36,5 @@ class MapSampleState extends State<MapSample> {
           label: Text('DetailPage!'),
           icon: Icon(Icons.directions_boat),
         ));
-  }
-
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
   }
 }
