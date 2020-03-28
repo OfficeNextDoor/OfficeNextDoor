@@ -34,11 +34,24 @@ class MapViewState extends State<MapView> {
           ),
           Positioned(
             left: 10,
-            top: 20,
+            top: 30,
             child: IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () => scaffoldKey.currentState.openDrawer(),
+            )
+          ),
+          Positioned(
+            right: 10,
+            top: 30,
+            child: IconButton(
+              icon: Icon(Icons.filter_list, color: Colors.white)
             ),
+          ),
+          Positioned(
+            top: 30,
+            left: 60,
+            right: 60,
+            child: buildSearchField(context)
           )
         ]
       ),
@@ -72,6 +85,26 @@ class MapViewState extends State<MapView> {
               },
             ),
           ]));
+  }
+
+  TextField buildSearchField(BuildContext context) {
+    return TextField(
+      autofocus: false,
+      decoration : InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        focusColor: Colors.white,
+        hintText : "Search...",
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(20),
+        ),
+      )
+    );
   }
 }
 
