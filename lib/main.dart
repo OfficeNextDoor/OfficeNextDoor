@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:office_next_door/detail_view.dart';
+import 'package:office_next_door/detail_view/detail_view.dart';
 import 'map.dart';
 
 void main() {
