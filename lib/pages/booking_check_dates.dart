@@ -9,7 +9,9 @@ class BookingCheckDatesPage extends StatefulWidget {
   final WorkplaceRecord record;
   final List<DateTime> selectedDates;
 
-  BookingCheckDatesPage({Key key, @required this.record, @required this.selectedDates}) : super(key: key);
+  BookingCheckDatesPage(
+      {Key key, @required this.record, @required this.selectedDates})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -21,6 +23,7 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
   Calendarro monthCalendarro;
   List<DateTime> selectedDates;
   WorkplaceRecord record;
+
   BookingCheckDatesPageState(this.record, this.selectedDates);
 
   @override
@@ -38,7 +41,6 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
           print(record.description);
           print("onTap: $date");
           selectedDates.add(date);
-
         });
 
     return new Scaffold(
@@ -50,22 +52,25 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
           child: monthCalendarro,
         ),
         bottomSheet: Footer(
-          buttonLabel: "Check dates",
+          buttonLabel: "save",
           leftElement: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
+            child: Row(
               children: <Widget>[
                 Text(
-                  "Preis pro Nacht",
-                  textScaleFactor: 0.8,
+                  "${record.price.toStringAsFixed(2)}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text("20 CHF"),
+                Text("/Day", style: TextStyle(fontSize: 12)),
               ],
             ),
           ),
           buttonAction: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => DetailView(record: record, selectedDates: selectedDates)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DetailView(
+                        record: record, selectedDates: selectedDates)));
           },
         ));
   }

@@ -49,13 +49,12 @@ class MapViewState extends State<MapView> {
       final MarkerId markerId = MarkerId(workplace.reference.documentID);
       final Marker marker = Marker(
           markerId: markerId,
-          position: LatLng(workplace.geopoint.latitude, workplace.geopoint.longitude),
+          position:
+              LatLng(workplace.geopoint.latitude, workplace.geopoint.longitude),
           infoWindow: InfoWindow(
-            title: workplace.title,
-            onTap: () => _onMarkerWindowTapped(workplace)
-          ),
-          onTap: () => _onMarkerTapped(markerId)
-          );
+              title: workplace.title,
+              onTap: () => _onMarkerWindowTapped(workplace)),
+          onTap: () => _onMarkerTapped(markerId));
       setState(() {
         _markers[markerId] = marker;
       });
@@ -133,17 +132,16 @@ class MapViewState extends State<MapView> {
         body: Stack(children: <Widget>[
           Center(
               child: GoogleMap(
-                  mapType: MapType.normal,
-                  initialCameraPosition: _kZurich,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                  },
-                  markers: Set<Marker>.of(_markers.values),
-                  myLocationEnabled: _showUserLocation,
-                  myLocationButtonEnabled: false,
-                  compassEnabled: false,
-              )
-          ),
+            mapType: MapType.normal,
+            initialCameraPosition: _kZurich,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            markers: Set<Marker>.of(_markers.values),
+            myLocationEnabled: _showUserLocation,
+            myLocationButtonEnabled: false,
+            compassEnabled: false,
+          )),
           Positioned(
               left: 10,
               top: 30,
@@ -166,14 +164,13 @@ class MapViewState extends State<MapView> {
 
   FloatingActionButton buildLocateButton(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () {
-        setState(() {
-          _showUserLocation = true;
-        });
-        _goToUserLocation();
-      },
-      child: Icon(Icons.location_on)
-    );
+        onPressed: () {
+          setState(() {
+            _showUserLocation = true;
+          });
+          _goToUserLocation();
+        },
+        child: Icon(Icons.location_on));
   }
 
   void _goToUserLocation() async {
@@ -187,8 +184,7 @@ class MapViewState extends State<MapView> {
     var currentLocation = await location.getLocation();
     controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(currentLocation.latitude, currentLocation.longitude),
-        zoom: 16
-    )));
+        zoom: 16)));
   }
 
   Drawer buildDrawer(BuildContext context) {
@@ -303,7 +299,10 @@ class CustomListItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailView(record: workplaceRecord, selectedDates: new List(),),
+            builder: (context) => DetailView(
+              record: workplaceRecord,
+              selectedDates: List(),
+            ),
           ),
         );
       },
