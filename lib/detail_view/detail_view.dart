@@ -40,7 +40,7 @@ class DetailViewState extends State<DetailView> {
         ),
         body: Column(
           children: <Widget>[
-            CarouselWithIndicator(),
+            CarouselWithIndicator(base64Images: record.images.map((i) => i['base64'].toString()).toList()),
             Padding(
               padding: const EdgeInsets.all(5.0),
               child: Column(
