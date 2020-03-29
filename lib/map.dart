@@ -194,16 +194,9 @@ class MapViewState extends State<MapView> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Image(image: AssetImage('assets/officenextdoor.png'))
-            ),
+                child: Image(image: AssetImage('assets/officenextdoor.png'))),
             buildLoginLogoutTile(context),
-            ListTile(
-              title: Text('Offer a workplace'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => OfferView()));
-              },
-            ),
+            buildOfferWorkplaceTile(context)
           ]),
     );
   }
@@ -224,6 +217,26 @@ class MapViewState extends State<MapView> {
                         )));
           });
     }
+  }
+
+  ListTile buildOfferWorkplaceTile(BuildContext context) {
+    var gotToView = (userId) => Navigator.push(
+        context, MaterialPageRoute(builder: (context) => OfferView(userId: userId)));
+
+    return ListTile(
+        title: Text('Offer a workplace'),
+        onTap: _authStatus == AuthStatus.LOGGED_IN
+            ? () => gotToView(_userId)
+            : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoginSignupView(
+                        auth: widget.auth,
+                        loginCallback: () async {
+                          loginCallback();
+                          var user = await widget.auth.getCurrentUser();
+                          gotToView(user.uid);
+                        }))));
   }
 
   TextField buildSearchField(BuildContext context) {
