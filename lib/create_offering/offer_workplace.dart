@@ -84,7 +84,7 @@ class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeep
               CustomTextField('Lat', '8.5', (value) => latitude = value),
               Column(
                 children: values.keys.map((String key) {
-                  return new CheckboxListTile(
+                  return new SwitchListTile(
                     title: Text(key),
                     value: values[key].value,
                     onChanged: (bool value) {
