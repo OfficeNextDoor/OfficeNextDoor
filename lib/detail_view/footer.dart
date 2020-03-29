@@ -1,20 +1,35 @@
 import 'package:flutter/material.dart';
 
 class Footer extends StatelessWidget {
-  Footer(this.buttonAction);
+  Footer(
+      {Key key,
+      @required this.buttonAction,
+      @required this.buttonLabel,
+      @required this.leftElement})
+      : super(key: key);
 
   final Function buttonAction;
+  final String buttonLabel;
+  final Widget leftElement;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Colors.black12,
-        child: ButtonBar(alignment: MainAxisAlignment.end, children: [
+      height: 45,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          leftElement,
           RaisedButton(
             color: Colors.blue,
             onPressed: buttonAction,
-            child: Text('Book NOW!', style: TextStyle(fontSize: 32)),
+            child: Text(
+              buttonLabel,
+              style: TextStyle(color: Colors.white),
+            ),
           )
-        ]));
+        ],
+      ),
+    );
   }
 }

@@ -31,6 +31,8 @@ dependencies:
   multi_image_picker: ^4.6.4
   location: ^2.3.5
   permission: ^0.1.7
+  calendarro: ^1.1.2
+
 
 
 dev_dependencies:

@@ -303,7 +303,7 @@ class CustomListItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailView(record: workplaceRecord),
+            builder: (context) => DetailView(record: workplaceRecord, selectedDates: new List(),),
           ),
         );
       },
