@@ -6,7 +6,7 @@ import 'package:office_next_door/sign_in/login_signup_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'detail_view/detail_view.dart';
-import 'offer_workplace.dart';
+import 'create_offering/offer_workplace.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum AuthStatus {

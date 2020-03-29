@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:office_next_door/create_offering/offer_image_page.dart';
 import 'package:place_picker/place_picker.dart';
 
 class OfferView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Create new Offering')),
-        body: OfferCreationForm());
+      appBar: AppBar(title: Text('Create new Offering')),
+      body: OfferCreationForm(),
+    );
   }
 }
 
@@ -62,15 +64,14 @@ class OfferCreationFormState extends State<OfferCreationForm> {
         child: Padding(
             padding: EdgeInsets.all(20),
             child: ListView(children: <Widget>[
+              CustomTextField('Title', (value) => workplaceDTO.title = value),
               CustomTextField(
-                  'Title', (value) => workplaceDTO.title = value),
-              CustomTextField('Description',
-                  (value) => workplaceDTO.description = value),
+                  'Description', (value) => workplaceDTO.description = value),
               Row(
                 children: <Widget>[
                   Expanded(
-                      child: CustomTextField('Address',
-                          (value) => workplaceDTO.address = value)),
+                      child: CustomTextField(
+                          'Address', (value) => workplaceDTO.address = value)),
                   RaisedButton(onPressed: showPlacePicker, child: Text('Maps')),
                 ],
               ),
@@ -88,16 +89,20 @@ class OfferCreationFormState extends State<OfferCreationForm> {
                 }).toList(),
               ),
               RaisedButton(
+                child: Text('Next'),
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')));
+                    _formKey.currentState.save();
+                    workplaceDTO.features = _valueMapToFeatureList(values);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            OfferViewImagePage(workplaceDTO: this.workplaceDTO),
+                      ),
+                    );
                   }
-                  _formKey.currentState.save();
-                  workplaceDTO.features = _valueMapToFeatureList(values);
-
                 },
-                child: Text('Next'),
               ),
             ])));
   }

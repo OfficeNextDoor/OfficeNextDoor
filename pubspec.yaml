@@ -28,6 +28,8 @@ dependencies:
   cloud_firestore: ^0.13.4+2
   firebase_auth: ^0.15.5+3
   font_awesome_flutter: ^8.8.1
+  multi_image_picker: ^4.6.4
+
 
 
 dev_dependencies:
