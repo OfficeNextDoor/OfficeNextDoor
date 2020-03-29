@@ -110,7 +110,7 @@ class FirebaseDataAccess implements DataAccess {
       _workplaceCollectionOwner: owner,
       _workplaceCollectionFeatures: features,
       _workplaceCollectionThumbnail: thumbnail,
-      _workplaceCollectionImages: images,
+      _workplaceCollectionImages: images.map((i) => { 'base64' : i }),
       _workplaceCollectionBookings: List<String>()
     };
     DocumentReference ref =

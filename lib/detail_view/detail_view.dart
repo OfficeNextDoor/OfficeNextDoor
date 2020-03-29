@@ -23,45 +23,45 @@ class DetailViewState extends State<DetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(record.title),
-      ),
-      body: Column(
-        children: <Widget>[
-          CarouselWithIndicator(),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Icon(Icons.star, size: 18),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 2.0)),
-                        Text(
-                          '${record.averageRating.toStringAsFixed(1)} (${record.numberOfRatings})',
-                          style: const TextStyle(fontSize: 14.0),
-                        )
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: record.features.map((feature) {
-                        return Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: _getIcon(feature),
-                        );
-                      }).toList(),
-                    )
-                  ],
-                ),
-                const Padding(padding: EdgeInsets.symmetric(vertical: 2.0)),
-                Row(
+        appBar: AppBar(
+          title: Text(record.title),
+        ),
+        body: Column(
+          children: <Widget>[
+            CarouselWithIndicator(base64Images: record.images.map((i) => i['base64'].toString()).toList()),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.star, size: 18),
+                          const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 2.0)),
+                          Text(
+                            '${record.averageRating.toStringAsFixed(1)} (${record.numberOfRatings})',
+                            style: const TextStyle(fontSize: 14.0),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: record.features.map((feature) {
+                          return Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: _getIcon(feature),
+                          );
+                        }).toList(),
+                      )
+                    ],
+                  ),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 2.0)),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
