@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'detail_view/detail_view.dart';
 import 'create_offering/offer_workplace.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:location/location.dart';
 import 'model/workplace_record.dart';
 
 enum AuthStatus {
@@ -35,6 +35,7 @@ class MapViewState extends State<MapView> {
   FirebaseDataAccess _dataAccess = new FirebaseDataAccess();
   Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
   MarkerId _selectedMarker;
+  bool _showUserLocation = false;
 
   static final CameraPosition _kZurich = CameraPosition(
     target: LatLng(47.36667, 8.54),
@@ -137,7 +138,10 @@ class MapViewState extends State<MapView> {
                   onMapCreated: (GoogleMapController controller) {
                     _controller.complete(controller);
                   },
-                  markers: Set<Marker>.of(_markers.values)
+                  markers: Set<Marker>.of(_markers.values),
+                  myLocationEnabled: _showUserLocation,
+                  myLocationButtonEnabled: false,
+                  compassEnabled: false,
               )
           ),
           Positioned(
@@ -157,14 +161,34 @@ class MapViewState extends State<MapView> {
               top: 30, left: 60, right: 60, child: buildSearchField(context)),
           _buildDraggableBottomSheet(context)
         ]),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            // Navigate to the second screen using a named route.
-            Navigator.pushNamed(context, '/detail');
-          },
-          label: Text('DetailPage!'),
-          icon: Icon(Icons.directions_boat),
-        ));
+        floatingActionButton: buildLocateButton(context));
+  }
+
+  FloatingActionButton buildLocateButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        setState(() {
+          _showUserLocation = true;
+        });
+        _goToUserLocation();
+      },
+      child: Icon(Icons.location_on)
+    );
+  }
+
+  void _goToUserLocation() async {
+    var location = new Location();
+    location.changeSettings(
+      accuracy: LocationAccuracy.HIGH,
+      distanceFilter: 0,
+      interval: 100,
+    );
+    var controller = await _controller.future;
+    var currentLocation = await location.getLocation();
+    controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(currentLocation.latitude, currentLocation.longitude),
+        zoom: 16
+    )));
   }
 
   Drawer buildDrawer(BuildContext context) {
