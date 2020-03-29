@@ -77,6 +77,17 @@ class DetailViewState extends State<DetailView> {
                   record.description,
                   style: const TextStyle(fontSize: 14.0),
                 ),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                Text(
+                  'Address',
+                  style: const TextStyle(
+                      fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 2.0)),
+                Text(
+                  record.address,
+                  style: const TextStyle(fontSize: 14.0),
+                ),
               ],
             ),
           )
