@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
-
-final List<ListItem> listItems = [
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value'),
-  ListItem('Title', 'Value')
-];
+import 'package:office_next_door/map.dart';
 
 class ListItem {
   ListItem(this.title, this.subtitle);
@@ -31,21 +12,19 @@ class ListItem {
 }
 
 class DetailList extends StatelessWidget {
+  final WorkplaceRecord record;
 
-//  DetailList(this.items);
-//  final List<ListItem> items;
-
-  final List<ListItem> items = listItems;
+  DetailList({Key key, @required this.record} );
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
         child: SizedBox(
             child: ListView.separated(
-              itemCount: items.length,
+              itemCount: this.record.features.length,
               itemBuilder: (context, index) {
-                  final item = items[index];
-                  return ListTile(title: item.build(context));
+                  final item = this.record.features[index];
+                  return ListTile(title: Text(item));
                 },
                 separatorBuilder: (context, index) => Divider(color: Colors.grey),
             )
