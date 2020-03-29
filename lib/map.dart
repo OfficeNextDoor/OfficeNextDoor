@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:office_next_door/common/data_access.dart';
 import 'package:office_next_door/sign_in/authentication.dart';
 import 'package:office_next_door/sign_in/login_signup_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,11 +32,59 @@ class MapViewState extends State<MapView> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
+  FirebaseDataAccess _dataAccess = new FirebaseDataAccess();
+  Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
+  MarkerId _selectedMarker;
 
   static final CameraPosition _kZurich = CameraPosition(
     target: LatLng(47.36667, 8.54),
     zoom: 14.4746,
   );
+
+  void _createMarkers() async {
+    var workplaces = await _dataAccess.getAllWorkplaces();
+
+    for (var workplace in workplaces) {
+      final MarkerId markerId = MarkerId(workplace.reference.documentID);
+      final Marker marker = Marker(
+          markerId: markerId,
+          position: LatLng(workplace.geopoint.latitude, workplace.geopoint.longitude),
+          infoWindow: InfoWindow(
+            title: workplace.title,
+            onTap: () => _onMarkerWindowTapped(workplace)
+          ),
+          onTap: () => _onMarkerTapped(markerId)
+          );
+      setState(() {
+        _markers[markerId] = marker;
+      });
+    }
+  }
+
+  void _onMarkerWindowTapped(WorkplaceRecord record) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => DetailView(record: record)));
+  }
+
+  void _onMarkerTapped(MarkerId markerId) {
+    final Marker tappedMarker = _markers[markerId];
+    if (tappedMarker != null) {
+      setState(() {
+        if (_markers.containsKey(_selectedMarker)) {
+          final Marker resetOld = _markers[_selectedMarker]
+              .copyWith(iconParam: BitmapDescriptor.defaultMarker);
+          _markers[_selectedMarker] = resetOld;
+        }
+        _selectedMarker = markerId;
+        final Marker newMarker = tappedMarker.copyWith(
+          iconParam: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueGreen,
+          ),
+        );
+        _markers[markerId] = newMarker;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -49,6 +98,7 @@ class MapViewState extends State<MapView> {
             user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
     });
+    _createMarkers();
   }
 
   void loginCallback() {
@@ -86,7 +136,10 @@ class MapViewState extends State<MapView> {
                   initialCameraPosition: _kZurich,
                   onMapCreated: (GoogleMapController controller) {
                     _controller.complete(controller);
-                  })),
+                  },
+                  markers: Set<Marker>.of(_markers.values)
+              )
+          ),
           Positioned(
               left: 10,
               top: 30,
@@ -211,8 +264,6 @@ class MapViewState extends State<MapView> {
     );
   }
 }
-
-
 
 class CustomListItem extends StatelessWidget {
   const CustomListItem({
