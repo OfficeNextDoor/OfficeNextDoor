@@ -19,21 +19,10 @@ class OfferViewImagePage extends StatefulWidget {
 
 class OfferViewImagePageState extends State<OfferViewImagePage> {
   List<Asset> images = List<Asset>();
-  String _error;
   final WorkplaceDTO workplaceDTO;
   FirebaseDataAccess _dataAccess = FirebaseDataAccess();
 
   OfferViewImagePageState({Key key, @required this.workplaceDTO});
-
-  /* TODO enable firebase upload
-  Future saveImage(Asset asset) async {
-    ByteData byteData = await asset.requestOriginal();
-    List<int> imageData = byteData.buffer.asUint8List();
-    StorageReference ref = FirebaseStorage.instance.ref().child("some_image_bame.jpg");
-    StorageUploadTask uploadTask = ref.putData(imageData);
-
-    return await (await uploadTask.onComplete).ref.getDownloadURL();
-  } */
 
   @override
   void initState() {
@@ -63,14 +52,12 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
     });
 
     List<Asset> resultList;
-    String error;
-
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 300,
       );
     } on Exception catch (e) {
-      error = e.toString();
+      debugPrint(e.toString());
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -80,7 +67,6 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
 
     setState(() {
       images = resultList;
-      if (error == null) _error = 'No Error Dectected';
     });
   }
 
@@ -93,7 +79,6 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
         ),
         body: Column(
           children: <Widget>[
-            // TODO do we even need this? Center(child: Text('Error: $_error')),
             RaisedButton(
               child: Text('Upload images'),
               onPressed: loadAssets,
