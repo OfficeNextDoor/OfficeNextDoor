@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:marquee/marquee.dart';
 import 'package:office_next_door/model/workplace_record.dart';
 import 'image_carousel.dart';
 import 'footer.dart';
@@ -77,8 +76,7 @@ class DetailViewState extends State<DetailView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      // TODO: get price from workrecord
-                      Text("CHF ${(25).toStringAsFixed(2)} per day",
+                      Text("CHF ${record.price.toStringAsFixed(2)} per day",
                         style: const TextStyle(fontSize: 14.0),
                       )
                     ]

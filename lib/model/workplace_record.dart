@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WorkplaceRecord {
@@ -14,6 +16,7 @@ class WorkplaceRecord {
   final List images;
   final List features;
   final List bookings;
+  final num price;
   final DocumentReference reference;
 
   WorkplaceRecord.fromMap(Map<String, dynamic> map, {this.reference})
@@ -30,6 +33,7 @@ class WorkplaceRecord {
         assert(map['images'] != null),
         assert(map['features'] != null),
         assert(map['bookings'] != null),
+        assert(map['price'] != null),
         title = map['title'],
         description = map['description'],
         thumbnail = map['thumbnail'],
@@ -42,7 +46,8 @@ class WorkplaceRecord {
         geopoint = map['geopoint'],
         images = map['images'],
         features = map['features'],
-        bookings = map['bookings'];
+        bookings = map['bookings'],
+        price = map['price'];
 
   WorkplaceRecord.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
