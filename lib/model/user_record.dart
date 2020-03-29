@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class UserRecord {
   final String firstName;
   final String lastName;
   final String email;
   final String uid;
   final DocumentReference reference;
 
-  User.fromMap(Map<String, dynamic> map, {this.reference})
+  UserRecord.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['firstName'] != null),
         assert(map['lastName'] != null),
         assert(map['email'] != null),
@@ -17,7 +17,7 @@ class User {
         email = map['email'],
         uid = map['uid'];
 
-  User.fromSnapshot(DocumentSnapshot snapshot)
+  UserRecord.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   @override

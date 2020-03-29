@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_next_door/map.dart';
+import 'package:office_next_door/model/workplace_record.dart';
 import 'image_carousel.dart';
 import 'detail_list.dart';
 import 'footer.dart';

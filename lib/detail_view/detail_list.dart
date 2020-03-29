@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_next_door/map.dart';
+import 'package:office_next_door/model/workplace_record.dart';
 
 class ListItem {
   ListItem(this.title, this.subtitle);

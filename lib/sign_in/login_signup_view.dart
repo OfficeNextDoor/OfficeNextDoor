@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_next_door/common/data_access.dart';
-import 'package:office_next_door/model/user.dart';
+import 'package:office_next_door/model/user_record.dart';
 import 'authentication.dart';
 
 class LoginSignupView extends StatefulWidget {
@@ -44,7 +44,7 @@ class LoginSignupViewState extends State<LoginSignupView> {
     });
     if (validateAndSave()) {
       String userId = "";
-      User user;
+      UserRecord user;
       try {
         if (_isLoginForm) {
           userId = await widget.auth.signIn(_email, _password);
