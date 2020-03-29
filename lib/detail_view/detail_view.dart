@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:office_next_door/map.dart';
 import 'package:office_next_door/model/workplace_record.dart';
 import 'package:office_next_door/pages/booking_check_dates.dart';
 import 'image_carousel.dart';
@@ -104,15 +103,15 @@ class DetailViewState extends State<DetailView> {
             ],
           ),
         ),
-        buttonAction: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: selectedDates.length > 0
-                      ? (context) => BookingCheckDatesPage(
-                          record: record, selectedDates: selectedDates)
-                      : (context) => MapView()));
-        },
+        buttonAction: selectedDates.length > 0
+            ? () => Navigator.pushNamed(context, "/")
+            : () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BookingCheckDatesPage(
+                            record: record, selectedDates: selectedDates)));
+              },
       ),
     );
   }

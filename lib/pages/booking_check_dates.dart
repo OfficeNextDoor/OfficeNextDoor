@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:calendarro/calendarro.dart';
 import 'package:calendarro/date_utils.dart';
 import 'package:office_next_door/detail_view/detail_view.dart';
 import 'package:office_next_door/detail_view/footer.dart';
 import 'package:office_next_door/model/workplace_record.dart';
+import 'package:intl/intl.dart';
+
 
 class BookingCheckDatesPage extends StatefulWidget {
   final WorkplaceRecord record;
@@ -25,23 +28,39 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
   WorkplaceRecord record;
 
   BookingCheckDatesPageState(this.record, this.selectedDates);
+  DateTime startDate = DateUtils.getFirstDayOfCurrentMonth();
+  DateTime endDate = DateUtils.getLastDayOfNextMonth();
+
+  String _currentMonth;
+
+  void _setCurrentMonth(DateTime startOfPage, DateTime endOfPage) {
+    var newMonth = formatMonth(startOfPage);
+    setState(() {
+      _currentMonth = newMonth;
+    });
+  }
+
+
+  @override
+  void initState() {
+    monthCalendarro = Calendarro(
+      startDate: startDate,
+      endDate: endDate,
+      displayMode: DisplayMode.MONTHS,
+      selectionMode: SelectionMode.MULTI,
+      weekdayLabelsRow: CustomWeekdayLabelsRow(),
+      onTap: (date) {
+        selectedDates.add(date);
+      },
+      onPageSelected: _setCurrentMonth,
+    );
+
+    _currentMonth = formatMonth(startDate);
+  }
 
   @override
   Widget build(BuildContext context) {
-    var startDate = DateUtils.getFirstDayOfCurrentMonth();
-    var endDate = DateUtils.getLastDayOfNextMonth();
 
-    monthCalendarro = Calendarro(
-        startDate: startDate,
-        endDate: endDate,
-        displayMode: DisplayMode.MONTHS,
-        selectionMode: SelectionMode.MULTI,
-        weekdayLabelsRow: CustomWeekdayLabelsRow(),
-        onTap: (date) {
-          print(record.description);
-          print("onTap: $date");
-          selectedDates.add(date);
-        });
 
     return new Scaffold(
         appBar: new AppBar(
@@ -49,7 +68,15 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: monthCalendarro,
+          child: Column(
+            children: <Widget>[
+              Text('$_currentMonth', style: TextStyle(color: Colors.black38, fontSize: 18),),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: monthCalendarro,
+              ),
+            ],
+          ),
         ),
         bottomSheet: Footer(
           buttonLabel: "save",
@@ -74,6 +101,11 @@ class BookingCheckDatesPageState extends State<BookingCheckDatesPage> {
           },
         ));
   }
+
+  static String formatMonth(DateTime date){
+    var formatter = new DateFormat('MMMM');
+    return formatter.format(date);
+  }
 }
 
 class CustomWeekdayLabelsRow extends StatelessWidget {
@@ -81,13 +113,13 @@ class CustomWeekdayLabelsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Expanded(child: Text("M", textAlign: TextAlign.center)),
-        Expanded(child: Text("T", textAlign: TextAlign.center)),
-        Expanded(child: Text("W", textAlign: TextAlign.center)),
-        Expanded(child: Text("T", textAlign: TextAlign.center)),
-        Expanded(child: Text("F", textAlign: TextAlign.center)),
-        Expanded(child: Text("S", textAlign: TextAlign.center)),
-        Expanded(child: Text("S", textAlign: TextAlign.center)),
+        Expanded(child: Text("Mo", textAlign: TextAlign.center)),
+        Expanded(child: Text("Tu", textAlign: TextAlign.center)),
+        Expanded(child: Text("We", textAlign: TextAlign.center)),
+        Expanded(child: Text("Th", textAlign: TextAlign.center)),
+        Expanded(child: Text("Fr", textAlign: TextAlign.center)),
+        Expanded(child: Text("Sa", textAlign: TextAlign.center)),
+        Expanded(child: Text("So", textAlign: TextAlign.center)),
       ],
     );
   }
