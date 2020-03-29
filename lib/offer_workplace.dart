@@ -17,43 +17,43 @@ class OfferCreationForm extends StatefulWidget {
   State<StatefulWidget> createState() => OfferCreationFormState();
 }
 
+class CheckboxData {
+  CheckboxData(this.title, this.value);
+
+  String title;
+  bool value;
+}
+
 class OfferCreationFormState extends State<OfferCreationForm> {
-
   LatLng latLng;
-  WorkplaceDTO workplaceRecord;
+  WorkplaceDTO workplaceDTO;
+  List<String> features;
 
-  OfferCreationFormState(){
-    this.workplaceRecord = WorkplaceDTO();
+  final _formKey = GlobalKey<FormState>();
+
+  Map<String, CheckboxData> values = {
+    'wifi': CheckboxData("WiFi", false),
+    'coffee': CheckboxData("Coffee", false),
+    'toilet': CheckboxData("Toilet", false),
+  };
+
+  OfferCreationFormState() {
+    this.workplaceDTO = WorkplaceDTO();
   }
 
   void showPlacePicker() async {
     LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) =>
-            PlacePicker(
+        builder: (context) => PlacePicker(
               "-------",
               //TODO get this from google-services.json
               displayLocation: LatLng(47.36667, 8.54),
             )));
 
     // Handle the result in your way
-    workplaceRecord.address = result.formattedAddress;
-    workplaceRecord.geopoint = GeoPoint(result.latLng.latitude, result.latLng.longitude);
+    workplaceDTO.address = result.formattedAddress;
+    workplaceDTO.geopoint =
+        GeoPoint(result.latLng.latitude, result.latLng.longitude);
   }
-
-  void toggle(List<String> features, String value, bool checked) {
-    if (checked) {
-      features.add(value);
-    } else
-      features.remove(value);
-    //
-//    if(features.contains(value)) {
-//      features.remove(value);
-//    } else {
-//      features.add(value);
-//    }
-  }
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -62,24 +62,31 @@ class OfferCreationFormState extends State<OfferCreationForm> {
         child: Padding(
             padding: EdgeInsets.all(20),
             child: ListView(children: <Widget>[
-              CustomTextField('Title', (value) => workplaceRecord.title = value),
-              CustomTextField('Description', (value) => workplaceRecord.description = value),
+              CustomTextField(
+                  'Title', (value) => workplaceDTO.title = value),
+              CustomTextField('Description',
+                  (value) => workplaceDTO.description = value),
               Row(
                 children: <Widget>[
-                  Expanded(child: CustomTextField(
-                      'Address', (value) => workplaceRecord.address = value)),
+                  Expanded(
+                      child: CustomTextField('Address',
+                          (value) => workplaceDTO.address = value)),
                   RaisedButton(onPressed: showPlacePicker, child: Text('Maps')),
                 ],
               ),
-
-              CustomCheckboxListTile("wifi", (checked) => toggle(workplaceRecord.features, "wifi", checked)),
-              CustomCheckboxListTile("Coffee", (checked) => toggle(workplaceRecord.features, "coffee", checked)),
-              CustomCheckboxListTile("Power Outlet", (checked) => toggle(workplaceRecord.features, "power_outlet", checked)),
-              CustomCheckboxListTile("Display", (checked) => toggle(workplaceRecord.features, "display", checked)),
-              CustomCheckboxListTile("Windows", (checked) => toggle(workplaceRecord.features, "windows", checked)),
-              CustomCheckboxListTile("Water", (checked) => toggle(workplaceRecord.features, "water", checked)),
-              CustomCheckboxListTile("Toilet", (checked) => toggle(workplaceRecord.features, "toilet", checked)),
-
+              Column(
+                children: values.keys.map((String key) {
+                  return new CheckboxListTile(
+                    title: Text(key),
+                    value: values[key].value,
+                    onChanged: (bool value) {
+                      setState(() {
+                        values[key].value = value;
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
               RaisedButton(
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
@@ -87,29 +94,12 @@ class OfferCreationFormState extends State<OfferCreationForm> {
                         SnackBar(content: Text('Processing Data')));
                   }
                   _formKey.currentState.save();
+                  workplaceDTO.features = _valueMapToFeatureList(values);
+
                 },
                 child: Text('Next'),
               ),
             ])));
-  }
-}
-
-class CustomCheckboxListTile extends StatelessWidget {
-  CustomCheckboxListTile(this.labelText, this.onChanged);
-
-  final String labelText;
-  final Function onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(8),
-      child: CheckboxListTile(
-        value: false,
-        title: Text(labelText),
-        onChanged: onChanged,
-      ),
-    );
   }
 }
 
@@ -142,8 +132,11 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-class WorkplaceDTO {
+List<String> _valueMapToFeatureList(Map<String, CheckboxData> values) {
+  return values.entries.where((e) => e.value.value).map((e) => e.key).toList();
+}
 
+class WorkplaceDTO {
   WorkplaceDTO() {
     this.bookings = [];
     this.images = [];
