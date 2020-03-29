@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:office_next_door/sign_in/authentication.dart';
 import 'package:office_next_door/sign_in/login_signup_view.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 import 'offer_workplace.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -17,7 +17,6 @@ enum AuthStatus {
 
 class MapView extends StatefulWidget {
   MapView({this.auth});
-
   final BaseAuth auth;
 
   @override
@@ -74,6 +73,7 @@ class MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
         drawer: buildDrawer(context),
         body: Stack(children: <Widget>[
@@ -191,8 +191,8 @@ class MapViewState extends State<MapView> {
 
   DraggableScrollableSheet _buildDraggableBottomSheet(BuildContext context) {
     return DraggableScrollableSheet(
-        initialChildSize: 0.3,
-        minChildSize: 0.3,
+        initialChildSize: 0.2,
+        minChildSize: 0.2,
         maxChildSize: 0.6,
         builder: _buildBody);
   }
@@ -365,7 +365,10 @@ class WorkplaceDescription extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: features.map((feature) {
-                  return _getIcon(feature);
+                  return Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: _getIcon(feature),
+                  );
                 }).toList(),
               )
             ],
@@ -381,47 +384,62 @@ Widget _getIcon(feature) {
   switch (feature) {
     case "toilet":
       {
-        icon = Icons.wc;
+        icon = FontAwesomeIcons.toilet;
       }
       break;
     case "screen":
       {
-        icon = Icons.tv;
+        icon = FontAwesomeIcons.desktop;
       }
       break;
     case "fresh_air":
       {
-        icon = Icons.local_florist;
-      }
-      break;
-    case "large_desk":
-      {
-        icon = Icons.desktop_windows;
+        icon = FontAwesomeIcons.wind;
       }
       break;
     case "coffee":
       {
-        icon = Icons.local_drink;
+        icon = FontAwesomeIcons.coffee;
       }
       break;
     case "water":
       {
-        icon = Icons.pin_drop;
+        icon = FontAwesomeIcons.wineBottle;
+      }
+      break;
+    case "relax":
+      {
+        icon = FontAwesomeIcons.couch;
+      }
+      break;
+    case "chair":
+      {
+        icon = FontAwesomeIcons.chair;
+      }
+      break;
+    case "nature":
+      {
+        icon = FontAwesomeIcons.tree;
+      }
+      break;
+    case "wifi":
+      {
+        icon = FontAwesomeIcons.wifi;
       }
       break;
     case "power_outlet":
       {
-        icon = Icons.power;
+        icon = FontAwesomeIcons.plug;
       }
       break;
     default:
       {
-        return Text("?");
+        icon = FontAwesomeIcons.questionCircle;
       }
       break;
   }
 
-  return Icon(
+  return FaIcon(
     icon,
     size: 18,
   );
