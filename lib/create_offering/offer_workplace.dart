@@ -6,18 +6,28 @@ import 'package:office_next_door/create_offering/offer_image_page.dart';
 import 'package:place_picker/place_picker.dart';
 
 class OfferView extends StatelessWidget {
+  final String userId;
+
+  OfferView({Key key, @required this.userId})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Create new Offering')),
-      body: OfferCreationForm(),
+      body: OfferCreationForm(userId: this.userId),
     );
   }
 }
 
 class OfferCreationForm extends StatefulWidget {
+  final String userId;
+
+  OfferCreationForm({Key key, @required this.userId})
+      : super(key: key);
+
   @override
-  State<StatefulWidget> createState() => OfferCreationFormState();
+  State<StatefulWidget> createState() => OfferCreationFormState(userId: userId);
 }
 
 class CheckboxData {
@@ -28,6 +38,7 @@ class CheckboxData {
 }
 
 class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeepAliveClientMixin {
+  final String userId;
   LatLng latLng;
   WorkplaceDTO workplaceDTO;
   List<String> features;
@@ -44,8 +55,9 @@ class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeep
     'toilet': CheckboxData("Toilet", false),
   };
 
-  OfferCreationFormState() {
+  OfferCreationFormState({@required this.userId}) {
     this.workplaceDTO = WorkplaceDTO();
+    this.workplaceDTO.owner = userId;
   }
 
   void showPlacePicker() async {
@@ -101,7 +113,6 @@ class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeep
               CustomTextField('Price', '30.1', (value) => workplaceDTO.price = double.parse(value)),
               CustomTextField('Available from', '2020-03-01', (value) =>  workplaceDTO.availableFrom = Timestamp.fromDate(DateTime.parse(value))), //2020-03-01
               CustomTextField('Available until', '2020-06-01', (value) =>  workplaceDTO.availableTo = Timestamp.fromDate(DateTime.parse(value))), //2020-06-01
-              CustomTextField('Owner', '95816dd3-bffc-4810-b065-cf9ff9714b06', (value) => workplaceDTO.owner = value),
 
               RaisedButton(
                 child: Text('Next'),
