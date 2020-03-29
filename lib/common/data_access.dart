@@ -15,13 +15,14 @@ abstract class DataAccess {
   Future<WorkplaceRecord> createWorkplace(String title,
       String description,
       String address,
-      String geopoint,
+      GeoPoint geopoint,
       DateTime availableFrom,
       DateTime availableTo,
       double price,
       String owner,
       List<String> features,
-      List<String> images,);
+      List<String> images,
+      String thumbnail,);
 
   Future<WorkplaceRecord> createBooking(WorkplaceRecord record, String bookedBy,
       DateTime date);
@@ -87,13 +88,15 @@ class FirebaseDataAccess implements DataAccess {
   Future<WorkplaceRecord> createWorkplace(String title,
       String description,
       String address,
-      String geopoint,
+      GeoPoint geopoint,
       DateTime availableFrom,
       DateTime availableTo,
       double price,
       String owner,
       List<String> features,
-      List<String> images,) async {
+      List<String> images,
+      String thumbnail) async {
+
     var workplaceMap = {
       _workplaceCollectionTitle: title,
       _workplaceCollectionDescription: description,
@@ -106,7 +109,7 @@ class FirebaseDataAccess implements DataAccess {
       _workplaceCollectionPrice: price,
       _workplaceCollectionOwner: owner,
       _workplaceCollectionFeatures: features,
-      _workplaceCollectionThumbnail: images,
+      _workplaceCollectionThumbnail: thumbnail,
       _workplaceCollectionImages: images,
       _workplaceCollectionBookings: List<String>()
     };
