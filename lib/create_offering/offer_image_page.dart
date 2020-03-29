@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:office_next_door/common/data_access.dart';
 import 'package:office_next_door/create_offering/offer_workplace.dart';
 
 class OfferViewImagePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => OfferViewImagePageState(workplaceDTO: this.workplaceDTO);
+  State<StatefulWidget> createState() =>
+      OfferViewImagePageState(workplaceDTO: this.workplaceDTO);
 
   OfferViewImagePage({Key key, @required this.workplaceDTO}) : super(key: key);
   final WorkplaceDTO workplaceDTO;
@@ -16,9 +21,9 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
   List<Asset> images = List<Asset>();
   String _error;
   final WorkplaceDTO workplaceDTO;
+  FirebaseDataAccess _dataAccess = FirebaseDataAccess();
 
   OfferViewImagePageState({Key key, @required this.workplaceDTO});
-
 
   /* TODO enable firebase upload
   Future saveImage(Asset asset) async {
@@ -107,12 +112,29 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
   }
 
   setImagesAndUpload() async {
-    workplaceDTO.images = await images.map((image) => image.getByteData()).toList();
-    workplaceDTO.thumbnail = await images.first.getThumbByteData(100, 100);
+    List<String> base64Images = [];
 
-    debugPrint(workplaceDTO.toString());
-    //TODO owner UUID must be added to workplace DTO
-    //TODO then add workplace DTO to data access
+    await Future.forEach(images, (image) async {
+      ByteData byteData = await image.getByteData();
+      base64Images.add(base64Encode(byteData.buffer.asUint8List()));
+    });
+    String thumbnail;
+    if (base64Images.isNotEmpty){
+      thumbnail = base64Images.first;
+    }
 
+    _dataAccess.createWorkplace(
+      workplaceDTO.title,
+      workplaceDTO.description,
+      workplaceDTO.address,
+      workplaceDTO.geopoint,
+      workplaceDTO.availableFrom,
+      workplaceDTO.availableTo,
+      workplaceDTO.price,
+      workplaceDTO.owner,
+      workplaceDTO.features,
+      base64Images,
+      thumbnail,
+    );
   }
 }

@@ -96,8 +96,9 @@ class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeep
                 }).toList(),
               ),
 
-              CustomTextField('AverageRating', '3.4', (value) => workplaceDTO.averageRating = double.parse(value)),
-              CustomTextField('Number of ratings', '100', (value) => workplaceDTO.numberOfRatings = int.parse(value)),
+              // TODO useless for now CustomTextField('AverageRating', '3.4', (value) => workplaceDTO.averageRating = double.parse(value)),
+              // TODO useless for now CustomTextField('Number of ratings', '100', (value) => workplaceDTO.numberOfRatings = int.parse(value)),
+              CustomTextField('Price', '30.1', (value) => workplaceDTO.price = double.parse(value)),
               CustomTextField('Available from', '2020-03-01', (value) =>  workplaceDTO.availableFrom = Timestamp.fromDate(DateTime.parse(value))), //2020-03-01
               CustomTextField('Available until', '2020-06-01', (value) =>  workplaceDTO.availableTo = Timestamp.fromDate(DateTime.parse(value))), //2020-06-01
               CustomTextField('Owner', '95816dd3-bffc-4810-b065-cf9ff9714b06', (value) => workplaceDTO.owner = value),
@@ -198,39 +199,6 @@ class WorkplaceDTO {
   List bookings;
   List images;
   List features;
-
-  WorkplaceDTO.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['title'] != null),
-        assert(map['description'] != null),
-        assert(map['thumbnail'] != null),
-        assert(map['owner'] != null),
-        assert(map['availableFrom'] != null),
-        assert(map['availableTo'] != null),
-        assert(map['address'] != null),
-        assert(map['averageRating'] != null),
-        assert(map['numberOfRatings'] != null),
-        assert(map['geopoint'] != null),
-        title = map['title'],
-        description = map['description'],
-        thumbnail = map['thumbnail'],
-        owner = map['owner'],
-        availableFrom = map['availableFrom'],
-        availableTo = map['availableTo'],
-        address = map['address'],
-        averageRating = map['averageRating'],
-        numberOfRatings = map['numberOfRatings'],
-        geopoint = map['geopoint'];
-
-  WorkplaceDTO.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$title:$averageRating>";
+  double price;
 }
 
-class BookingDTO {
-  BookingDTO(this.by, this.date);
-
-  String by;
-  DateTime date;
-}
