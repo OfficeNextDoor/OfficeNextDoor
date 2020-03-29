@@ -194,10 +194,7 @@ class MapViewState extends State<MapView> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text('Insert Logo Here'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
+              child: Image(image: AssetImage('assets/officenextdoor.png'))
             ),
             buildLoginLogoutTile(context),
             ListTile(
