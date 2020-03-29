@@ -6,8 +6,7 @@ import 'package:office_next_door/create_offering/offer_workplace.dart';
 
 class OfferViewImagePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() =>
-      OfferViewImagePageState(workplaceDTO: this.workplaceDTO);
+  State<StatefulWidget> createState() => OfferViewImagePageState(workplaceDTO: this.workplaceDTO);
 
   OfferViewImagePage({Key key, @required this.workplaceDTO}) : super(key: key);
   final WorkplaceDTO workplaceDTO;
@@ -17,8 +16,6 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
   List<Asset> images = List<Asset>();
   String _error;
   final WorkplaceDTO workplaceDTO;
-
-
 
   OfferViewImagePageState({Key key, @required this.workplaceDTO});
 
@@ -100,12 +97,22 @@ class OfferViewImagePageState extends State<OfferViewImagePage> {
               child: buildGridView(),
             ),
             RaisedButton(
-              child: Text('Next'),
-              onPressed: null, //TODO navigate to next step
+              child: Text('Upload'),
+              onPressed: setImagesAndUpload,
             )
           ],
         ),
       ),
     );
+  }
+
+  setImagesAndUpload() async {
+    workplaceDTO.images = await images.map((image) => image.getByteData()).toList();
+    workplaceDTO.thumbnail = await images.first.getThumbByteData(100, 100);
+
+    debugPrint(workplaceDTO.toString());
+    //TODO owner UUID must be added to workplace DTO
+    //TODO then add workplace DTO to data access
+
   }
 }

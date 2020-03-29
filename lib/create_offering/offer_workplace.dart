@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:office_next_door/create_offering/offer_image_page.dart';
 import 'package:place_picker/place_picker.dart';
@@ -26,10 +27,14 @@ class CheckboxData {
   bool value;
 }
 
-class OfferCreationFormState extends State<OfferCreationForm> {
+class OfferCreationFormState extends State<OfferCreationForm> with AutomaticKeepAliveClientMixin {
   LatLng latLng;
   WorkplaceDTO workplaceDTO;
   List<String> features;
+
+  String longitude;
+  String latitude;
+
 
   final _formKey = GlobalKey<FormState>();
 
@@ -64,17 +69,19 @@ class OfferCreationFormState extends State<OfferCreationForm> {
         child: Padding(
             padding: EdgeInsets.all(20),
             child: ListView(children: <Widget>[
-              CustomTextField('Title', (value) => workplaceDTO.title = value),
+              CustomTextField('Title', 'title', (value) => workplaceDTO.title = value),
               CustomTextField(
-                  'Description', (value) => workplaceDTO.description = value),
+                  'Description', 'description', (value) => workplaceDTO.description = value),
               Row(
                 children: <Widget>[
                   Expanded(
                       child: CustomTextField(
-                          'Address', (value) => workplaceDTO.address = value)),
+                          'Address', 'address', (value) => workplaceDTO.address = value)),
                   RaisedButton(onPressed: showPlacePicker, child: Text('Maps')),
                 ],
               ),
+              CustomTextField('Lng', '47.4', (value) => longitude = value),
+              CustomTextField('Lat', '8.5', (value) => latitude = value),
               Column(
                 children: values.keys.map((String key) {
                   return new CheckboxListTile(
@@ -88,12 +95,22 @@ class OfferCreationFormState extends State<OfferCreationForm> {
                   );
                 }).toList(),
               ),
+
+              CustomTextField('AverageRating', '3.4', (value) => workplaceDTO.averageRating = double.parse(value)),
+              CustomTextField('Number of ratings', '100', (value) => workplaceDTO.numberOfRatings = int.parse(value)),
+              CustomTextField('Available from', '2020-03-01', (value) =>  workplaceDTO.availableFrom = Timestamp.fromDate(DateTime.parse(value))), //2020-03-01
+              CustomTextField('Available until', '2020-06-01', (value) =>  workplaceDTO.availableTo = Timestamp.fromDate(DateTime.parse(value))), //2020-06-01
+              CustomTextField('Owner', '95816dd3-bffc-4810-b065-cf9ff9714b06', (value) => workplaceDTO.owner = value),
+
               RaisedButton(
                 child: Text('Next'),
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
                     _formKey.currentState.save();
                     workplaceDTO.features = _valueMapToFeatureList(values);
+                    if (workplaceDTO.geopoint == null) {
+                      workplaceDTO.geopoint = GeoPoint(double.parse(latitude), double.parse(longitude));
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -106,12 +123,27 @@ class OfferCreationFormState extends State<OfferCreationForm> {
               ),
             ])));
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
-class CustomTextField extends StatelessWidget {
-  CustomTextField(this.labelText, this.onSaved);
+class CustomTextField extends StatefulWidget {
+  CustomTextField(this.labelText, this.defaultValue, this.onSaved);
 
   final String labelText;
+  final String defaultValue;
+  final Function onSaved;
+
+  @override
+  State<StatefulWidget> createState() => CustomTextFieldState(labelText, defaultValue, onSaved);
+}
+
+class CustomTextFieldState extends State<CustomTextField> with AutomaticKeepAliveClientMixin {
+  CustomTextFieldState(this.labelText, this.defaultValue, this.onSaved);
+
+  final String labelText;
+  final String defaultValue;
   final Function onSaved;
 
   @override
@@ -132,9 +164,13 @@ class CustomTextField extends StatelessWidget {
           return null;
         },
         onSaved: onSaved,
+        initialValue: defaultValue,
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 List<String> _valueMapToFeatureList(Map<String, CheckboxData> values) {
@@ -150,7 +186,7 @@ class WorkplaceDTO {
 
   String title;
   String description;
-  String thumbnail;
+  ByteData thumbnail;
   String owner;
   Timestamp availableFrom;
   Timestamp availableTo;
@@ -159,9 +195,9 @@ class WorkplaceDTO {
   int numberOfRatings;
   GeoPoint geopoint;
   DocumentReference reference;
-  List<BookingDTO> bookings;
-  List<Image> images;
-  List<String> features;
+  List bookings;
+  List images;
+  List features;
 
   WorkplaceDTO.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['title'] != null),
